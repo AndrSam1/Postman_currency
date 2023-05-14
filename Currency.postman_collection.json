@@ -1,0 +1,503 @@
+{
+	"info": {
+		"_postman_id": "452136aa-909f-4556-8bfd-6767bfb8b541",
+		"name": "Currency",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26051557"
+	},
+	"item": [
+		{
+			"name": "/api/v1/time",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/time",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"time"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/v1/ticker/24hr",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var Ajv = require('ajv');",
+							"ajv = new Ajv({logger: console});",
+							"",
+							"var schema = {",
+							"    \"type\": \"object\",",
+							"    \"required\": [",
+							"        \"symbol\",",
+							"        \"priceChange\",",
+							"        \"priceChangePercent\",",
+							"        \"weightedAvgPrice\",",
+							"        \"lastPrice\",",
+							"        \"lastQty\",",
+							"        \"bidPrice\",",
+							"        \"askPrice\",",
+							"        \"highPrice\",",
+							"        \"lowPrice\",",
+							"        \"volume\",",
+							"        \"quoteVolume\",",
+							"        \"openTime\",",
+							"        \"closeTime\"",
+							"    ],",
+							"    \"properties\": {",
+							"        \"symbol\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The symbol Schema\"",
+							"        },",
+							"        \"priceChange\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The priceChange Schema\"",
+							"        },",
+							"        \"priceChangePercent\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The priceChangePercent Schema\"",
+							"        },",
+							"        \"weightedAvgPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The weightedAvgPrice Schema\"",
+							"        },",
+							"        \"lastPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The lastPrice Schema\"",
+							"        },",
+							"        \"lastQty\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The lastQty Schema\"",
+							"        },",
+							"        \"bidPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The bidPrice Schema\"",
+							"        },",
+							"        \"askPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The askPrice Schema\"",
+							"        },",
+							"        \"highPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The highPrice Schema\"",
+							"        },",
+							"        \"lowPrice\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The lowPrice Schema\"",
+							"        },",
+							"        \"volume\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The volume Schema\"",
+							"        },",
+							"        \"quoteVolume\": {",
+							"            \"type\": \"string\",",
+							"            \"default\": \"\",",
+							"            \"title\": \"The quoteVolume Schema\"",
+							"        },",
+							"        \"openTime\": {",
+							"            \"type\": \"number\",",
+							"            \"default\": 0,",
+							"            \"title\": \"The openTime Schema\"",
+							"        },",
+							"        \"closeTime\": {",
+							"            \"type\": \"number\",",
+							"            \"default\": 0,",
+							"            \"title\": \"The closeTime Schema\"",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"pm.sendRequest(request.url.replace('{{baseURL}}', pm.environment.get(\"baseURL\")), function (err, response) {",
+							"    var response_len = response.json().length;",
+							"    var random_symbol = response.json()[Math.floor(Math.random() * response_len)].symbol;",
+							"",
+							"    pm.sendRequest(request.url.replace('{{baseURL}}', pm.environment.get(\"baseURL\")) + '?symbol='+ random_symbol, function (err, response) {",
+							"",
+							"        var jsonData = response.json();",
+							"",
+							"        pm.test('JSON schema is valid', function () {",
+							"            pm.expect(ajv.validate(schema, jsonData)).to.be.true;",
+							"        })",
+							"",
+							"        pm.environment.set(\"symbol\", jsonData.symbol);",
+							"        pm.globals.set(\"openPrice\", jsonData.openPrice);",
+							"        pm.globals.set(\"openTime\", jsonData.openTime);",
+							"        pm.globals.set(\"closeTime\", jsonData.closeTime);",
+							"",
+							"        pm.test(\"prevClosePrice to eql openPrice\", function () {",
+							"            pm.expect(jsonData.prevClosePrice).to.eql(jsonData.openPrice);",
+							"        });",
+							"",
+							"    });",
+							"",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/ticker/24hr",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ticker",
+						"24hr"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/v1/tradingFees",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var schema = {",
+							"    \"title\": \"Root Schema\",",
+							"    \"type\": \"array\",",
+							"    \"items\": {",
+							"        \"title\": \"A Schema\",",
+							"        \"type\": \"object\",",
+							"        \"required\": [",
+							"            \"symbol\",",
+							"            \"name\",",
+							"            \"fee\"",
+							"        ],",
+							"        \"properties\": {",
+							"            \"symbol\": {",
+							"                \"title\": \"The symbol Schema\",",
+							"                \"type\": \"string\"",
+							"            },",
+							"            \"name\": {",
+							"                \"title\": \"The name Schema\",",
+							"                \"type\": \"string\"",
+							"            },",
+							"            \"overnightRates\": {",
+							"                \"title\": \"The overnightRates Schema\",",
+							"                \"type\": \"object\",",
+							"                \"required\": [",
+							"                    \"longRate\",",
+							"                    \"shortRate\"",
+							"                ],",
+							"                \"properties\": {",
+							"                    \"longRate\": {",
+							"                        \"title\": \"The longRate Schema\",",
+							"                        \"type\": \"number\"",
+							"                    },",
+							"                    \"shortRate\": {",
+							"                        \"title\": \"The shortRate Schema\",",
+							"                        \"type\": \"number\"",
+							"                    }",
+							"                }",
+							"            },",
+							"            \"overnightFeeTimestamp\": {",
+							"                \"title\": \"The overnightFeeTimestamp Schema\",",
+							"                \"type\": \"integer\"",
+							"            },",
+							"            \"fee\": {",
+							"                \"title\": \"The fee Schema\",",
+							"                \"type\": \"number\"",
+							"            }",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Schema is valid', function() {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/tradingFees?symbol={{symbol}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tradingFees"
+					],
+					"query": [
+						{
+							"key": "symbol",
+							"value": "{{symbol}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/v1/aggTrades",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/aggTrades?symbol=Copper.&endTime={{closeTime}}&limit=1",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"aggTrades"
+					],
+					"query": [
+						{
+							"key": "symbol",
+							"value": "Copper."
+						},
+						{
+							"key": "endTime",
+							"value": "{{closeTime}}"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/v1/depth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var schema = {",
+							"    \"title\": \"Root Schema\",",
+							"    \"type\": \"object\",",
+							"    \"required\": [",
+							"        \"lastUpdateId\",",
+							"        \"asks\",",
+							"        \"bids\"",
+							"    ],",
+							"    \"properties\": {",
+							"        \"lastUpdateId\": {",
+							"            \"title\": \"The lastUpdateId Schema\",",
+							"            \"type\": \"number\"",
+							"        },",
+							"        \"asks\": {",
+							"            \"title\": \"The asks Schema\",",
+							"            \"type\": \"array\",",
+							"            \"items\": {",
+							"                \"title\": \"A Schema\",",
+							"                \"type\": \"array\",",
+							"                \"items\": {",
+							"                    \"title\": \"A Schema\",",
+							"                    \"type\": \"number\"",
+							"                }",
+							"            }",
+							"        },",
+							"        \"bids\": {",
+							"            \"title\": \"The bids Schema\",",
+							"            \"type\": \"array\",",
+							"            \"items\": {",
+							"                \"title\": \"A Schema\",",
+							"                \"type\": \"array\",",
+							"                \"items\": {",
+							"                    \"title\": \"A Schema\",",
+							"                    \"type\": \"number\"",
+							"                }",
+							"            }",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Schema is valid', function() {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/depth?symbol={{symbol}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"depth"
+					],
+					"query": [
+						{
+							"key": "symbol",
+							"value": "{{symbol}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/v1/klines",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var schema = {",
+							"    \"title\": \"Root Schema\",",
+							"    \"type\": \"array\",",
+							"    \"items\": {",
+							"        \"title\": \"A Schema\",",
+							"        \"type\": \"array\",",
+							"        \"items\": [{",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"number\"",
+							"        },",
+							"        {",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"string\"",
+							"        },",
+							"        {",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"string\"",
+							"        },",
+							"        {",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"string\"",
+							"        },",
+							"        {",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"string\"",
+							"        },",
+							"        {",
+							"            \"title\": \"A Schema\",",
+							"            \"type\": \"number\"",
+							"        }],",
+							"        \"uniqueItems\": true",
+							"    },",
+							"    \"uniqueItems\": true",
+							"}",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Schema is valid', function() {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"pm.test(\"OpenTime in response eql to OpenTime in request\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData[0][0]).to.eql(pm.globals.get(\"openTime\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/v1/klines?symbol={{symbol}}&interval=1d&startTime={{openTime}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"klines"
+					],
+					"query": [
+						{
+							"key": "symbol",
+							"value": "{{symbol}}"
+						},
+						{
+							"key": "interval",
+							"value": "1d"
+						},
+						{
+							"key": "startTime",
+							"value": "{{openTime}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
