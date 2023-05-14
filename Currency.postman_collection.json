@@ -45,19 +45,6 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
 							"var Ajv = require('ajv');",
 							"ajv = new Ajv({logger: console});",
 							"",
@@ -153,30 +140,39 @@
 							"    }",
 							"}",
 							"",
-							"pm.sendRequest(request.url.replace('{{baseURL}}', pm.environment.get(\"baseURL\")), function (err, response) {",
-							"    var response_len = response.json().length;",
-							"    var random_symbol = response.json()[Math.floor(Math.random() * response_len)].symbol;",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
 							"",
-							"    pm.sendRequest(request.url.replace('{{baseURL}}', pm.environment.get(\"baseURL\")) + '?symbol='+ random_symbol, function (err, response) {",
+							"var response_len = pm.response.json().length;",
+							"var random_symbol = pm.response.json()[Math.floor(Math.random() * response_len)].symbol;",
 							"",
-							"        var jsonData = response.json();",
+							"pm.sendRequest(request.url.replace('{{baseURL}}', pm.environment.get(\"baseURL\")) + '?symbol='+ random_symbol, function (err, response) {",
 							"",
-							"        pm.test('JSON schema is valid', function () {",
-							"            pm.expect(ajv.validate(schema, jsonData)).to.be.true;",
-							"        })",
+							"    var jsonData = response.json();",
 							"",
-							"        pm.environment.set(\"symbol\", jsonData.symbol);",
-							"        pm.globals.set(\"openPrice\", jsonData.openPrice);",
-							"        pm.globals.set(\"openTime\", jsonData.openTime);",
-							"        pm.globals.set(\"closeTime\", jsonData.closeTime);",
+							"    pm.test('JSON schema is valid', function () {",
+							"        pm.expect(ajv.validate(schema, jsonData)).to.be.true;",
+							"    })",
 							"",
-							"        pm.test(\"prevClosePrice to eql openPrice\", function () {",
-							"            pm.expect(jsonData.prevClosePrice).to.eql(jsonData.openPrice);",
-							"        });",
+							"    pm.environment.set(\"symbol\", jsonData.symbol);",
+							"    pm.globals.set(\"openPrice\", jsonData.openPrice);",
+							"    pm.globals.set(\"openTime\", jsonData.openTime);",
+							"    pm.globals.set(\"closeTime\", jsonData.closeTime);",
 							"",
+							"    pm.test(\"prevClosePrice to eql openPrice\", function () {",
+							"        pm.expect(jsonData.prevClosePrice).to.eql(jsonData.openPrice);",
 							"    });",
 							"",
-							"});",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
 							""
 						],
 						"type": "text/javascript"
